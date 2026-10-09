@@ -1,0 +1,6 @@
+venv/
+.env
+*.session
+data/
+node_modules/
+__pycache__/
