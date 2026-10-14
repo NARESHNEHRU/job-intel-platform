@@ -1,10 +1,10 @@
+from backend.app.api import profile, saved, recommend, chat
 from bson import ObjectId
 from bson.errors import InvalidId
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.api import profile, saved, recommend
 
 from backend.app.db.mongo import db
 
@@ -47,6 +47,7 @@ app.add_middleware(
 app.include_router(profile.router)
 app.include_router(saved.router)
 app.include_router(recommend.router)
+app.include_router(chat.router)
 
 jobs = db["jobs"]
 

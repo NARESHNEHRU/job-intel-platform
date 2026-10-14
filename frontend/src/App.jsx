@@ -1,6 +1,7 @@
+
 import { useEffect, useState } from "react";
 import "./App.css";
-
+import ChatPage from "./ChatPage";
 import Detail from "./Detail";
 import ForYouPage from "./ForYouPage";
 import JobsPage from "./JobsPage";
@@ -13,9 +14,21 @@ export default function App() {
   const [savedIds, setSavedIds] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [error, setError] = useState("");
+  const [aiOpen, setAiOpen] = useState(false);
 
   useEffect(() => {
     loadSavedIds();
+  }, []);
+
+  useEffect(() => {
+    function handleEscape(event) {
+      if (event.key === "Escape") {
+        setAiOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
   }, []);
 
   async function loadSavedIds() {
@@ -55,6 +68,7 @@ export default function App() {
 
   function openJob(job) {
     setSelectedJob(job);
+    setAiOpen(false);
   }
 
   function closeJob() {
@@ -100,64 +114,70 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+    <div className="app-shell min-h-screen">
+      <div className="neon-fog" aria-hidden="true" />
+
+      <header className="app-header">
+        <div className="app-header-inner">
           <button
             type="button"
             onClick={() => setPage("jobs")}
-            className="text-xl font-bold text-gray-900"
+            className="app-brand"
+            aria-label="AI Job Intelligence home"
           >
-            AI Job Intelligence
+            <span className="app-brand-icon">
+              <span>✦</span>
+            </span>
+
+            <span className="app-brand-text">
+              <span className="app-brand-title">
+                AI Job <span>Intelligence</span>
+              </span>
+
+              <span className="app-brand-subtitle">
+                Your career, intelligently matched.
+              </span>
+            </span>
           </button>
 
-          <nav className="flex gap-2">
+          <nav className="app-nav" aria-label="Main navigation">
             <button
               type="button"
               onClick={() => setPage("jobs")}
-              className={`rounded-lg px-4 py-2 text-sm font-medium ${
-                page === "jobs"
-                  ? "bg-black text-white"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
+              className={`app-nav-link ${page === "jobs" ? "active" : ""}`}
+              aria-current={page === "jobs" ? "page" : undefined}
             >
-              Jobs
+              <span className="app-nav-icon">⌕</span>
+              <span>Jobs</span>
             </button>
 
             <button
               type="button"
               onClick={() => setPage("foryou")}
-              className={`rounded-lg px-4 py-2 text-sm font-medium ${
-                page === "foryou"
-                  ? "bg-black text-white"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
+              className={`app-nav-link ${page === "foryou" ? "active" : ""}`}
+              aria-current={page === "foryou" ? "page" : undefined}
             >
-              For You
+              <span className="app-nav-icon">✧</span>
+              <span>For You</span>
             </button>
-
             <button
               type="button"
               onClick={() => setPage("saved")}
-              className={`rounded-lg px-4 py-2 text-sm font-medium ${
-                page === "saved"
-                  ? "bg-black text-white"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
+              className={`app-nav-link ${page === "saved" ? "active" : ""}`}
+              aria-current={page === "saved" ? "page" : undefined}
             >
-              Saved
+              <span className="app-nav-icon">♡</span>
+              <span>Saved</span>
             </button>
 
             <button
               type="button"
               onClick={() => setPage("profile")}
-              className={`rounded-lg px-4 py-2 text-sm font-medium ${
-                page === "profile"
-                  ? "bg-black text-white"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
+              className={`app-nav-link ${page === "profile" ? "active" : ""}`}
+              aria-current={page === "profile" ? "page" : undefined}
             >
-              Profile
+              <span className="app-nav-icon">◎</span>
+              <span>Profile</span>
             </button>
           </nav>
         </div>
@@ -165,7 +185,7 @@ export default function App() {
 
       {error && (
         <div className="mx-auto mt-4 max-w-7xl px-6">
-          <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+          <div className="rounded-lg border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-200">
             {error}
           </div>
         </div>
@@ -174,6 +194,58 @@ export default function App() {
       <main className="mx-auto max-w-7xl px-6 py-8">
         {renderPage()}
       </main>
+      {/* Floating Ask AI chat.
+          Keep it mounted when closed so the conversation is preserved. */}
+      <section
+        id="floating-ai-chat"
+        className={`ai-chat-panel ${aiOpen ? "is-open" : ""}`}
+        aria-label="Ask AI chat"
+        aria-hidden={!aiOpen}
+        inert={!aiOpen}
+      >
+        <div className="ai-chat-panel-header">
+          <div className="ai-chat-heading">
+            <span className="ai-chat-avatar">✳</span>
+            <span>
+              <strong>Ask AI</strong>
+              <small>Job intelligence assistant</small>
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className="ai-chat-close"
+            onClick={() => setAiOpen(false)}
+            aria-label="Close Ask AI"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="ai-chat-panel-body">
+          <ChatPage
+            onOpen={openJob}
+            savedIds={new Set(savedIds)}
+            onToggleSave={toggleSave}
+            isPopup
+          />
+        </div>
+      </section>
+
+      <button
+        type="button"
+        className={`ai-floating-button ${aiOpen ? "is-open" : ""}`}
+        onClick={() => setAiOpen((open) => !open)}
+        aria-label={aiOpen ? "Close Ask AI chat" : "Open Ask AI chat"}
+        aria-expanded={aiOpen}
+        aria-controls="floating-ai-chat"
+      >
+        <span className="ai-floating-icon">{aiOpen ? "×" : "✳"}</span>
+        <span className="ai-floating-label">
+          {aiOpen ? "Close AI" : "Ask AI"}
+        </span>
+        {!aiOpen && <span className="ai-floating-status" />}
+      </button>
 
       {selectedJob && (
         <Detail

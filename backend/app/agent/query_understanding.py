@@ -1,7 +1,7 @@
 import json
 import os
 import re
-
+from backend.app.services.resume import extract_skills
 import ollama
 from dotenv import load_dotenv
 
@@ -86,12 +86,13 @@ def understand_query(question: str) -> dict:
     known, unknown = normalize_skills(
         skills_all
     )
-
     hard_skills = [
         s
         for s in known
         if s not in unknown
     ]
+
+    hard_skills = list(dict.fromkeys(hard_skills + extract_skills(question)))
 
     # ---------------------------------------------------------
     # 3. Normalize location
@@ -160,12 +161,12 @@ def understand_query(question: str) -> dict:
         else ""
     )
 
-    semantic = (
-        " ".join(
-            [search_text] + skills_all
-        ).strip()
-        or question
-    )
+    semantic = " ".join(
+        dict.fromkeys(
+            word
+            for word in (search_text + " " + " ".join(skills_all)).split()
+        )
+    ).strip() or question
 
     # ---------------------------------------------------------
     # 7. Return final filters

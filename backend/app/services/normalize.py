@@ -54,6 +54,12 @@ SKILLS = {
     "Selenium": [],
     "Manual Testing": [],
     "Data Analysis": ["data analytics"],
+    "Data Structures and Algorithms": ["dsa"],
+    "Linux": [],
+    "Networking": ["computer networking"],
+    "Debugging": ["debug"],
+    "Data Visualization": ["data visualisation"],
+    "Software Development": ["software dev"],
 }
 
 

@@ -1,5 +1,4 @@
 import os
-
 from dotenv import load_dotenv
 from telethon.sync import TelegramClient
 from pymongo import MongoClient

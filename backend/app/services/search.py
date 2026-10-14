@@ -46,7 +46,11 @@ def build_filter(location=None, skills=None, experience=None, fresher=False,
             {"normalized.experience_min_years": {"$lte": experience}},
         ]})
     if min_salary_lpa:
-        clauses.append({"normalized.salary_max_inr": {"$gte": min_salary_lpa * 100_000}})
+        clauses.append({
+            "normalized.salary_max_inr": {
+                "$gt": min_salary_lpa * 100_000
+            }
+        })
     if work_mode:
         clauses.append({"normalized.work_mode": work_mode})
     if employment_type:
